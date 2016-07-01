@@ -115,14 +115,62 @@ function! s:ToggleLine() abort
 endfunction
 " }}}1
 
+" Enable an XMLTV config file entry {{{1
+function! s:EnableLine() abort
+    let lnum = line(".")
+    let line = getline(".")
+    " Look for lines containing key=disabled
+    if line =~? '\v\=disabled$'
+        call setline(lnum, s:EnableSetting(line))
+    " Next look for channel entries
+    elseif line =~? '\v^channel[!]'
+        call setline(lnum, s:EnableChannel(line))
+    endif
+endfunction
+" }}}1
+
+" Disable an XMLTV config file entry {{{1
+function! s:DisableLine() abort
+    let lnum = line(".")
+    let line = getline(".")
+    " Look for lines containing key=enabled
+    if line =~? '\v\=enabled$'
+        call setline(lnum, s:DisableSetting(line))
+    " Next look for channel entries
+    elseif line =~? '\v^channel[=]'
+        call setline(lnum, s:DisableChannel(line))
+    endif
+endfunction
+" }}}1
+
 " Toggle a non-channel config entry {{{1
 function! s:ToggleSetting(line) abort
     let line = a:line
 
     if line =~? '\v\=enabled$'
-        return substitute(line, '=enabled$', '=disabled', "")
+        return s:DisableSetting(line)
     elseif line =~? '\v\=disabled$'
+        return s:EnableSetting(line)
+    endif
+endfunction
+" }}}1
+
+" Enable a non-channel config entry {{{1
+function! s:EnableSetting(line) abort
+    let line = a:line
+
+    if line =~? '\v\=disabled$'
         return substitute(line, '=disabled$', '=enabled', "")
+    endif
+endfunction
+" }}}1
+
+" Disable a non-channel config entry {{{1
+function! s:DisableSetting(line) abort
+    let line = a:line
+
+    if line =~? '\v\=enabled$'
+        return substitute(line, '=enabled$', '=disabled', "")
     endif
 endfunction
 " }}}1
@@ -132,23 +180,49 @@ function! s:ToggleChannel(line) abort
     let line = a:line
 
     if line =~? '\v^channel\='
-        return substitute(line, '^channel=', 'channel!', "")
+        return s:DisableChannel(line)
     elseif line =~? '\v^channel\!'
+        return s:EnableChannel(line)
+    endif
+endfunction
+" }}}1
+
+" Enable a channel config entry {{{1
+function! s:EnableChannel(line) abort
+    let line = a:line
+
+    if line =~? '\v^channel\!'
         return substitute(line, '^channel!', 'channel=', "")
     endif
 endfunction
 " }}}1
 
+" Disable a channel config entry {{{1
+function! s:DisableChannel(line) abort
+    let line = a:line
+
+    if line =~? '\v^channel\='
+        return substitute(line, '^channel=', 'channel!', "")
+    endif
+endfunction
+" }}}1
+
 " Mappings {{{1
-nnoremap <buffer> <silent> <Plug>ToggleLine :<C-U>call <SID>ToggleLine()<CR>
+nnoremap <buffer> <silent> <Plug>ToggleLine  :<C-U>call <SID>ToggleLine()<CR>
+nnoremap <buffer> <silent> <Plug>EnableLine  :<C-U>call <SID>EnableLine()<CR>
+nnoremap <buffer> <silent> <Plug>DisableLine :<C-U>call <SID>DisableLine()<CR>
 
 if ! exists("g:xmltvconfig_no_mappings") || ! g:xmltvconfig_no_mappings
-    nmap <buffer> <silent> <Leader>x <Plug>ToggleLine
+    nmap <buffer> <silent> <LocalLeader>t <Plug>ToggleLine
+    nmap <buffer> <silent> <LocalLeader>e <Plug>EnableLine
+    nmap <buffer> <silent> <LocalLeader>d <Plug>DisableLine
 endif
 " }}}1
 
 " Commands {{{1
-command! -buffer -nargs=0 ToggleLine call s:ToggleLine()
+command! -buffer -nargs=0 ToggleLine  call s:ToggleLine()
+command! -buffer -nargs=0 EnableLine  call s:EnableLine()
+command! -buffer -nargs=0 DisableLine call s:DisableLine()
 " }}}1
 
 " Autocommands {{{1
