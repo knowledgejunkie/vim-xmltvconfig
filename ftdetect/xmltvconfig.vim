@@ -2,7 +2,7 @@
 " Language:    XMLTV grabber config files
 " FileType:    xmltvconfig
 " Maintainer:  Nick Morrott <knowledgejunkie@gmail.com>
-" Website:     https://github.com/knowledgejunkie/vim-xmltvfixup
+" Website:     https://github.com/knowledgejunkie/vim-xmltvconfig
 " Copyright:   2016, Nick Morrott <knowledgejunkie@gmail.com>
 " License:     Same as Vim
 " Version:     0.01
