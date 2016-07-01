@@ -5,8 +5,16 @@
 " Website:     https://github.com/knowledgejunkie/vim-xmltvconfig
 " Copyright:   2016, Nick Morrott <knowledgejunkie@gmail.com>
 " License:     Same as Vim
-" Version:     0.01
-" Last Change: 2016-06-30
+" Version:     0.02
+" Last Change: 2016-07-01
+
+" Acknowledgement {{{1
+"
+" The framework for the normal/visual mode handling came directly from the
+" awesome vim-commentary plugin (https://github.com/tpope/vim-commentary)
+" by Tim Pope.
+"
+" }}}1
 
 " Initialisation {{{1
 
@@ -101,10 +109,52 @@ function! s:getFoldType(foldstart, foldend) abort
 endfunction
 " }}}1
 
+" Toggle a range of XMLTV config file entries {{{1
+function! s:Toggle(type,...) abort
+  if a:0
+    let [lnum1, lnum2] = [a:type, a:1]
+  else
+    let [lnum1, lnum2] = [line("'["), line("']")]
+  endif
+
+  for lnum in range(lnum1,lnum2)
+      call s:ToggleLine(lnum)
+  endfor
+endfunction
+" }}}1
+
+" Enable a range of XMLTV config file entries {{{1
+function! s:Enable(type,...) abort
+  if a:0
+    let [lnum1, lnum2] = [a:type, a:1]
+  else
+    let [lnum1, lnum2] = [line("'["), line("']")]
+  endif
+
+  for lnum in range(lnum1,lnum2)
+      call s:EnableLine(lnum)
+  endfor
+endfunction
+" }}}1
+
+" Disable a range of XMLTV config file entries {{{1
+function! s:Disable(type,...) abort
+  if a:0
+    let [lnum1, lnum2] = [a:type, a:1]
+  else
+    let [lnum1, lnum2] = [line("'["), line("']")]
+  endif
+
+  for lnum in range(lnum1,lnum2)
+      call s:DisableLine(lnum)
+  endfor
+endfunction
+" }}}1
+
 " Toggle an XMLTV config file entry {{{1
-function! s:ToggleLine() abort
-    let lnum = line(".")
-    let line = getline(".")
+function! s:ToggleLine(lnum) abort
+    let lnum = a:lnum
+    let line = getline(lnum)
     " Look for lines containing key=enabled|disabled
     if line =~? '\v\=(enabled|disabled)$'
         call setline(lnum, s:ToggleSetting(line))
@@ -116,9 +166,9 @@ endfunction
 " }}}1
 
 " Enable an XMLTV config file entry {{{1
-function! s:EnableLine() abort
-    let lnum = line(".")
-    let line = getline(".")
+function! s:EnableLine(lnum) abort
+    let lnum = a:lnum
+    let line = getline(lnum)
     " Look for lines containing key=disabled
     if line =~? '\v\=disabled$'
         call setline(lnum, s:EnableSetting(line))
@@ -130,9 +180,9 @@ endfunction
 " }}}1
 
 " Disable an XMLTV config file entry {{{1
-function! s:DisableLine() abort
-    let lnum = line(".")
-    let line = getline(".")
+function! s:DisableLine(lnum) abort
+    let lnum = a:lnum
+    let line = getline(lnum)
     " Look for lines containing key=enabled
     if line =~? '\v\=enabled$'
         call setline(lnum, s:DisableSetting(line))
@@ -208,22 +258,19 @@ endfunction
 " }}}1
 
 " Mappings {{{1
-nnoremap <buffer> <silent> <Plug>ToggleLine  :<C-U>call <SID>ToggleLine()<CR>
-nnoremap <buffer> <silent> <Plug>EnableLine  :<C-U>call <SID>EnableLine()<CR>
-nnoremap <buffer> <silent> <Plug>DisableLine :<C-U>call <SID>DisableLine()<CR>
+nnoremap <buffer> <silent> <Plug>ToggleLine :<C-U>set opfunc=<SID>Toggle<Bar>exe 'norm! 'v:count1.'g@_'<CR>
+xnoremap <buffer> <silent> <Plug>Toggle     :<C-U>call <SID>Toggle(line("'<"),line("'>"))<CR>
+nnoremap <buffer> <silent> <Plug>EnableLine :<C-U>set opfunc=<SID>Enable<Bar>exe 'norm! 'v:count1.'g@_'<CR>
+xnoremap <buffer> <silent> <Plug>Enable     :<C-U>call <SID>Enable(line("'<"),line("'>"))<CR>
+nnoremap <buffer> <silent> <Plug>DisableLine :<C-U>set opfunc=<SID>Disable<Bar>exe 'norm! 'v:count1.'g@_'<CR>
+xnoremap <buffer> <silent> <Plug>Disable     :<C-U>call <SID>Disable(line("'<"),line("'>"))<CR>
 
 if ! exists("g:xmltvconfig_no_mappings") || ! g:xmltvconfig_no_mappings
     nmap <buffer> <silent> <LocalLeader>t <Plug>ToggleLine
+    xmap <buffer> <silent> <LocalLeader>t <Plug>Toggle
     nmap <buffer> <silent> <LocalLeader>e <Plug>EnableLine
+    xmap <buffer> <silent> <LocalLeader>e <Plug>Enable
     nmap <buffer> <silent> <LocalLeader>d <Plug>DisableLine
+    xmap <buffer> <silent> <LocalLeader>d <Plug>Disable
 endif
-" }}}1
-
-" Commands {{{1
-command! -buffer -nargs=0 ToggleLine  call s:ToggleLine()
-command! -buffer -nargs=0 EnableLine  call s:EnableLine()
-command! -buffer -nargs=0 DisableLine call s:DisableLine()
-" }}}1
-
-" Autocommands {{{1
 " }}}1

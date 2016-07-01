@@ -8,9 +8,7 @@ This plugin provides:
 * Automatic filetype detection
 * Syntax highlighting
 * Automatic folding
-* Toggling of enabled/disabled settings
-* Toggling of enabled/disabled channels
-* Mappable toggle commands
+* Normal/visual mode support
 
 
 ## Features
@@ -20,7 +18,6 @@ This plugin provides:
 The following filenames are automatically set to the 'xmltvconfig' filetype:
 
 * tv\_grab\_\*
-
 * freeview\*.conf
 * freesat\*.conf
 * sky\*.conf
@@ -49,34 +46,30 @@ Settings and channel entries are automatically folded into separate folds when
 a config file is opened.
 
 
-### Toggling of enabled/disabled settings
+### Normal/visual mode support
 
-Configuration settings having a value of "enabled" or "disabled" can be toggled
-by either calling:
+The plugin provides commands for both normal and visual modes that can
+be mapped. The default mappings can be disabled by setting
+g:xmltvconfig_no_mappings=1 in your .vimrc
 
-    :ToggleLine
+Normal mode commands allow an entry on the current line to be toggled, enabled
+or disabled. Visual mode commands allow the same functionality but on the
+current selection.
 
-or by using the relevant mapping (see below).
+By default, the following mappings are configured for the xmltvconfig
+filetype, and only for the current buffer:
 
+Normal mode (work on current line):
 
-### Toggling of enabled/disabled channels
+* <LocalLeader>x    <Plug>ToggleLine
+* <LocalLeader>e    <Plug>EnableLine
+* <LocalLeader>d    <Plug>DisableLine
 
-Channel entries can be quickly enabled (=) or disabled (!) by either calling:
+Visual mode (work over current selection):
 
-    :ToggleLine
-
-or by using the relevant mapping (see below).
-
-
-### Mappable toggle command
-
-The plugin provides a <Plug> command that can be mapped. The default
-mapping can be disabled by setting g:xmltvconfig_no_mappings=1 in your .vimrc
-
-By default, the following convenience mapping is provided (for the xmltvconfig
-filetype only, and only for the current buffer):
-
-    <Leader>x    <Plug>ToggleLine
+* <LocalLeader>x    <Plug>Toggle
+* <LocalLeader>e    <Plug>Enable
+* <LocalLeader>d    <Plug>Disable
 
 
 ## Prerequisites
@@ -140,6 +133,13 @@ once the plugin is installed.
 ## TODO
 
 * Support more settings (e.g. encodings)
+
+
+## Acknowledgements
+
+The framework for the normal/visual mode handling came directly from the
+awesome vim-commentary plugin (https://github.com/tpope/vim-commentary)
+by Tim Pope.
 
 
 ## License
